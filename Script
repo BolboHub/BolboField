@@ -1,0 +1,261 @@
+local BolboField = {}
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+
+-- Constants
+local BLUE_THEME = Color3.fromRGB(51, 153, 255)
+local BACKGROUND_COLOR = Color3.fromRGB(30, 30, 30)
+local TEXT_COLOR = Color3.fromRGB(255, 255, 255)
+local TRANSPARENCY = 0.1
+
+-- Utility Functions
+local function CreateTween(object, properties, duration)
+	local tweenInfo = TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local tween = TweenService:Create(object, tweenInfo, properties)
+	return tween
+end
+
+function BolboField:CreateWindow(config)
+	local Window = {}
+
+	-- Create main GUI
+	local ScreenGui = Instance.new("ScreenGui")
+	local MainFrame = Instance.new("Frame")
+	local Title = Instance.new("TextLabel")
+	local TabContainer = Instance.new("Frame")
+	local ContentContainer = Instance.new("Frame")
+
+	-- Setup GUI properties
+	ScreenGui.Name = "BolboField"
+	ScreenGui.Parent = game.CoreGui
+
+	MainFrame.Name = "MainFrame"
+	MainFrame.Parent = ScreenGui
+	MainFrame.BackgroundColor3 = BACKGROUND_COLOR
+	MainFrame.Position = UDim2.new(0.2, 0, 0.2, 0)
+	MainFrame.Size = UDim2.new(0, 600, 0, 400)
+	MainFrame.ClipsDescendants = true
+
+	-- Add title
+	Title.Name = "Title"
+	Title.Parent = MainFrame
+	Title.BackgroundTransparency = 1
+	Title.Position = UDim2.new(0, 10, 0, 5)
+	Title.Size = UDim2.new(1, -20, 0, 30)
+	Title.Font = Enum.Font.FredokaOne
+	Title.Text = config.Name or "BolboField"
+	Title.TextColor3 = TEXT_COLOR
+	Title.TextSize = 20
+
+	-- Setup containers
+	TabContainer.Name = "TabContainer"
+	TabContainer.Parent = MainFrame
+	TabContainer.BackgroundColor3 = BLUE_THEME
+	TabContainer.BackgroundTransparency = TRANSPARENCY
+	TabContainer.Position = UDim2.new(0, 10, 0, 40)
+	TabContainer.Size = UDim2.new(0, 150, 1, -50)
+
+	ContentContainer.Name = "ContentContainer"
+	ContentContainer.Parent = MainFrame
+	ContentContainer.BackgroundTransparency = 1
+	ContentContainer.Position = UDim2.new(0, 170, 0, 40)
+	ContentContainer.Size = UDim2.new(1, -180, 1, -50)
+
+	-- Tab creation function
+	function Window:CreateTab(name)
+		local Tab = {}
+
+		local TabButton = Instance.new("TextButton")
+		local TabContent = Instance.new("ScrollingFrame")
+
+		TabButton.Name = name
+		TabButton.Parent = TabContainer
+		TabButton.BackgroundColor3 = BLUE_THEME
+		TabButton.BackgroundTransparency = TRANSPARENCY
+		TabButton.Size = UDim2.new(1, 0, 0, 30)
+		TabButton.Font = Enum.Font.FredokaOne
+		TabButton.Text = name
+		TabButton.TextColor3 = TEXT_COLOR
+		TabButton.TextSize = 16
+
+		TabContent.Name = name .. "Content"
+		TabContent.Parent = ContentContainer
+		TabContent.BackgroundTransparency = 1
+		TabContent.Size = UDim2.new(1, 0, 1, 0)
+		TabContent.ScrollBarThickness = 4
+		TabContent.Visible = false
+
+		-- Section creation
+		function Tab:CreateSection(sectionName)
+			local Section = Instance.new("Frame")
+			local SectionTitle = Instance.new("TextLabel")
+			local ElementContainer = Instance.new("Frame")
+
+			Section.Name = sectionName
+			Section.Parent = TabContent
+			Section.BackgroundColor3 = BLUE_THEME
+			Section.BackgroundTransparency = TRANSPARENCY
+			Section.Size = UDim2.new(1, 0, 0, 100)
+
+			SectionTitle.Name = "Title"
+			SectionTitle.Parent = Section
+			SectionTitle.BackgroundTransparency = 1
+			SectionTitle.Size = UDim2.new(1, 0, 0, 25)
+			SectionTitle.Font = Enum.Font.FredokaOne
+			SectionTitle.Text = sectionName
+			SectionTitle.TextColor3 = TEXT_COLOR
+			SectionTitle.TextSize = 16
+
+			ElementContainer.Name = "Elements"
+			ElementContainer.Parent = Section
+			ElementContainer.BackgroundTransparency = 1
+			ElementContainer.Position = UDim2.new(0, 0, 0, 25)
+			ElementContainer.Size = UDim2.new(1, 0, 1, -25)
+
+			return Section
+		end
+
+		-- Toggle creation
+		function Tab:CreateToggle(config)
+			local Toggle = Instance.new("Frame")
+			local ToggleButton = Instance.new("TextButton")
+			local ToggleIndicator = Instance.new("Frame")
+
+			Toggle.Name = "Toggle"
+			Toggle.Parent = TabContent
+			Toggle.BackgroundColor3 = BLUE_THEME
+			Toggle.BackgroundTransparency = TRANSPARENCY
+			Toggle.Size = UDim2.new(1, 0, 0, 30)
+
+			ToggleButton.Name = "Button"
+			ToggleButton.Parent = Toggle
+			ToggleButton.BackgroundTransparency = 1
+			ToggleButton.Size = UDim2.new(1, 0, 1, 0)
+			ToggleButton.Font = Enum.Font.FredokaOne
+			ToggleButton.Text = config.Name
+			ToggleButton.TextColor3 = TEXT_COLOR
+			ToggleButton.TextSize = 14
+
+			local isToggled = config.CurrentValue or false
+
+			ToggleButton.MouseButton1Click:Connect(function()
+				isToggled = not isToggled
+				CreateTween(ToggleIndicator, {BackgroundColor3 = isToggled and BLUE_THEME or BACKGROUND_COLOR}):Play()
+				config.Callback(isToggled)
+			end)
+
+			return Toggle
+		end
+
+		-- Button creation
+		function Tab:CreateButton(config)
+			local Button = Instance.new("TextButton")
+
+			Button.Name = "Button"
+			Button.Parent = TabContent
+			Button.BackgroundColor3 = BLUE_THEME
+			Button.BackgroundTransparency = TRANSPARENCY
+			Button.Size = UDim2.new(1, 0, 0, 30)
+			Button.Font = Enum.Font.FredokaOne
+			Button.Text = config.Name
+			Button.TextColor3 = TEXT_COLOR
+			Button.TextSize = 14
+
+			Button.MouseButton1Click:Connect(function()
+				CreateTween(Button, {BackgroundTransparency = TRANSPARENCY - 0.2}):Play()
+				wait(0.1)
+				CreateTween(Button, {BackgroundTransparency = TRANSPARENCY}):Play()
+				config.Callback()
+			end)
+
+			return Button
+		end
+
+		-- Dropdown creation
+		function Tab:CreateDropdown(config)
+			local Dropdown = Instance.new("Frame")
+			local DropdownButton = Instance.new("TextButton")
+			local OptionsFrame = Instance.new("Frame")
+
+			Dropdown.Name = "Dropdown"
+			Dropdown.Parent = TabContent
+			Dropdown.BackgroundColor3 = BLUE_THEME
+			Dropdown.BackgroundTransparency = TRANSPARENCY
+			Dropdown.Size = UDim2.new(1, 0, 0, 30)
+
+			DropdownButton.Name = "Button"
+			DropdownButton.Parent = Dropdown
+			DropdownButton.BackgroundTransparency = 1
+			DropdownButton.Size = UDim2.new(1, 0, 1, 0)
+			DropdownButton.Font = Enum.Font.FredokaOne
+			DropdownButton.Text = config.Name
+			DropdownButton.TextColor3 = TEXT_COLOR
+			DropdownButton.TextSize = 14
+
+			-- Add dropdown functionality here
+			return Dropdown
+		end
+
+		-- Input creation
+		function Tab:CreateInput(config)
+			local Input = Instance.new("Frame")
+			local InputBox = Instance.new("TextBox")
+
+			Input.Name = "Input"
+			Input.Parent = TabContent
+			Input.BackgroundColor3 = BLUE_THEME
+			Input.BackgroundTransparency = TRANSPARENCY
+			Input.Size = UDim2.new(1, 0, 0, 30)
+
+			InputBox.Name = "TextBox"
+			InputBox.Parent = Input
+			InputBox.BackgroundTransparency = 0.9
+			InputBox.Size = UDim2.new(1, -20, 1, -10)
+			InputBox.Position = UDim2.new(0, 10, 0, 5)
+			InputBox.Font = Enum.Font.FredokaOne
+			InputBox.PlaceholderText = config.PlaceholderText
+			InputBox.Text = ""
+			InputBox.TextColor3 = TEXT_COLOR
+			InputBox.TextSize = 14
+
+			InputBox.FocusLost:Connect(function(enterPressed)
+				if enterPressed and config.RemoveTextAfterFocusLost then
+					config.Callback(InputBox.Text)
+					InputBox.Text = ""
+				end
+			end)
+
+			return Input
+		end
+
+		return Tab
+	end
+
+	-- Notification system
+	function Window:Notify(config)
+		local Notification = Instance.new("Frame")
+		local Title = Instance.new("TextLabel")
+		local Content = Instance.new("TextLabel")
+		local Button = Instance.new("TextButton")
+
+		Notification.Name = "Notification"
+		Notification.Parent = ScreenGui
+		Notification.BackgroundColor3 = BLUE_THEME
+		Notification.BackgroundTransparency = TRANSPARENCY
+		Notification.Position = UDim2.new(1, -320, 1, -100)
+		Notification.Size = UDim2.new(0, 300, 0, 80)
+
+		-- Add notification content here
+		CreateTween(Notification, {Position = UDim2.new(1, -320, 1, -100)}):Play()
+		wait(config.Duration or 5)
+		CreateTween(Notification, {Position = UDim2.new(1, 20, 1, -100)}):Play()
+		wait(0.5)
+		Notification:Destroy()
+	end
+
+	return Window
+end
+
+return BolboField
+
