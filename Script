@@ -1,18 +1,6 @@
 -- BolboField UI Library
 local BolboField = {}
 
-local function deepCloneTable(original)
-    local copy = {}
-    for k, v in pairs(original) do
-        if type(v) == "table" then
-            copy[k] = deepCloneTable(v)
-        else
-            copy[k] = v
-        end
-    end
-    return copy
-end
-
 local function createBaseGui()
     local G2L = {}
     local UserInputService = game:GetService("UserInputService")
@@ -40,6 +28,10 @@ local function createBaseGui()
     G2L["10"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
     G2L["10"]["Name"] = "DragWindow"
     G2L["10"]["BackgroundTransparency"] = 1
+
+    -- Create DragWindowScript
+    G2L["f"] = Instance.new("LocalScript", G2L["2"])
+    G2L["f"]["Name"] = "DragWindowScript"
 
     -- Create UI elements
     G2L["3"] = Instance.new("UIStroke", G2L["2"])
@@ -123,79 +115,119 @@ local function createBaseGui()
     G2L["e"]["Position"] = UDim2.new(0.01835, 0, 0, 0)
 
     -- Create BolboHub image
-    G2L["f"] = Instance.new("ImageButton", G2L["1"])
-    G2L["f"]["BorderSizePixel"] = 0
-    G2L["f"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-    G2L["f"]["Image"] = "rbxassetid://77521577858152"
-    G2L["f"]["Size"] = UDim2.new(0, 67, 0, 67)
-    G2L["f"]["Name"] = "BolboHubImage"
-    G2L["f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-    G2L["f"]["Position"] = UDim2.new(0.47506, 0, 0.12562, 0)
-    G2L["f"]["Visible"] = false
+    G2L["12"] = Instance.new("ImageButton", G2L["1"])
+    G2L["12"]["BorderSizePixel"] = 0
+    G2L["12"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
+    G2L["12"]["Image"] = "rbxassetid://77521577858152"
+    G2L["12"]["Size"] = UDim2.new(0, 67, 0, 67)
+    G2L["12"]["Name"] = "BolboHubImage"
+    G2L["12"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
+    G2L["12"]["Position"] = UDim2.new(0.47506, 0, 0.12562, 0)
+    G2L["12"]["Visible"] = false
 
-    G2L["10"] = Instance.new("UICorner", G2L["f"])
-    G2L["11"] = Instance.new("UIStroke", G2L["f"])
-    G2L["11"]["Color"] = Color3.fromRGB(117, 117, 117)
+    G2L["13"] = Instance.new("UICorner", G2L["12"])
+    G2L["14"] = Instance.new("UIStroke", G2L["12"])
+    G2L["14"]["Color"] = Color3.fromRGB(117, 117, 117)
 
     -- Setup window dragging
-    local dragging = false
-    local dragStart
-    local startPos
+    local dragWindowScript = G2L["f"]
+    dragWindowScript.Source = [[
+        local UserInputService = game:GetService("UserInputService")
+        local gui = script.Parent
+        local dragButton = gui:WaitForChild("DragWindow")
+        
+        local dragging = false
+        local dragStart
+        local startPos
+        
+        local function update(input)
+            local delta = input.Position - dragStart
+            gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+        
+        dragButton.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = true
+                dragStart = input.Position
+                startPos = gui.Position
+        
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end)
+            end
+        end)
+        
+        UserInputService.InputChanged:Connect(function(input)
+            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                update(input)
+            end
+        end)
+    ]]
 
-    local function updateDrag(input)
-        local delta = input.Position - dragStart
-        G2L["2"].Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-
-    G2L["10"].InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = G2L["2"].Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
+    -- Setup BolboHubImage dragging and functionality
+    local bolboImageScript = Instance.new("LocalScript", G2L["12"])
+    bolboImageScript.Source = [[
+        local UserInputService = game:GetService("UserInputService")
+        local imageButton = script.Parent
+        
+        local dragging = false
+        local dragStart
+        local startPos
+        
+        local function update(input)
+            local delta = input.Position - dragStart
+            imageButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+        
+        imageButton.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = true
+                dragStart = input.Position
+                startPos = imageButton.Position
+        
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end)
+            end
+        end)
+        
+        UserInputService.InputChanged:Connect(function(input)
+            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                update(input)
+            end
+        end)
+        
+        function showGui()
+            local player = game.Players.LocalPlayer
+            if player then
+                local gui = player:FindFirstChild("PlayerGui")
+                    :FindFirstChild("BolboHub")
+                    :FindFirstChild("Window")
+                if gui then
+                    gui.Visible = true
                 end
-            end)
+            end
         end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            updateDrag(input)
-        end
-    end)
-
-    -- Setup BolboHubImage dragging
-    local imageDragging = false
-    local imageDragStart
-    local imageStartPos
-
-    local function updateImageDrag(input)
-        local delta = input.Position - imageDragStart
-        G2L["f"].Position = UDim2.new(imageStartPos.X.Scale, imageStartPos.X.Offset + delta.X, imageStartPos.Y.Scale, imageStartPos.Y.Offset + delta.Y)
-    end
-
-    G2L["f"].InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            imageDragging = true
-            imageDragStart = input.Position
-            imageStartPos = G2L["f"].Position
-
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    imageDragging = false
+        
+        function HideBolboImage()
+            local player = game.Players.LocalPlayer
+            if player then
+                local image = player:FindFirstChild("PlayerGui")
+                    :FindFirstChild("BolboHub")
+                    :FindFirstChild("BolboHubImage")
+                if image then
+                    image.Visible = false
                 end
-            end)
+            end
         end
-    end)
-
-    UserInputService.InputChanged:Connect(function(input)
-        if imageDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            updateImageDrag(input)
-        end
-    end)
+        
+        imageButton.MouseButton1Click:Connect(HideBolboImage)
+        imageButton.MouseButton1Click:Connect(showGui)
+    ]]
 
     -- Setup button functionality
     local TweenService = game:GetService("TweenService")
@@ -237,15 +269,9 @@ local function createBaseGui()
 
         G2L["9"].MouseButton1Click:Connect(function()
             G2L["2"].Visible = false
-            G2L["f"].Visible = true
+            G2L["12"].Visible = true
         end)
     end
-
-    -- BolboHub image functionality
-    G2L["f"].MouseButton1Click:Connect(function()
-        G2L["f"].Visible = false
-        G2L["2"].Visible = true
-    end)
 
     setupDestroyButton()
     setupMinimizeButton()
