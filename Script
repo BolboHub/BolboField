@@ -14,7 +14,7 @@ local function deepCloneTable(original)
 end
 
 local function createBaseGui()
-	
+
 	local G2L = {};
 
 	-- StarterGui.BolboHub
@@ -187,98 +187,98 @@ local function createBaseGui()
 
 	-- StarterGui.BolboHub.Window.DestroyButton.ButtonTransparencyTween
 	local function C_6()
-	local script = G2L["6"];
+		local script = G2L["6"];
 		local TweenService = game:GetService("TweenService")
 		local button = script.Parent
 		local frame = button.Parent:FindFirstChild("DestroyButtonFrame")
-		
+
 		if frame then
-		    local function createTween(targetTransparency)
-		        local tweenInfo = TweenInfo.new(
-		            0.3, -- Time
-		            Enum.EasingStyle.Linear, -- EasingStyle
-		            Enum.EasingDirection.Out, -- EasingDirection
-		            0, -- RepeatCount (0 = no repeat)
-		            false, -- Reverses (no reverse)
-		            0 -- DelayTime
-		        )
-		        local tween = TweenService:Create(frame, tweenInfo, {BackgroundTransparency = targetTransparency})
-		        return tween
-		    end
-		
-		    button.MouseEnter:Connect(function()
-		        local tween = createTween(0.3)
-		        tween:Play()
-		    end)
-		
-		    button.MouseLeave:Connect(function()
-		        local tween = createTween(1)
-		        tween:Play()
-		    end)
+			local function createTween(targetTransparency)
+				local tweenInfo = TweenInfo.new(
+					0.3, -- Time
+					Enum.EasingStyle.Linear, -- EasingStyle
+					Enum.EasingDirection.Out, -- EasingDirection
+					0, -- RepeatCount (0 = no repeat)
+					false, -- Reverses (no reverse)
+					0 -- DelayTime
+				)
+				local tween = TweenService:Create(frame, tweenInfo, {BackgroundTransparency = targetTransparency})
+				return tween
+			end
+
+			button.MouseEnter:Connect(function()
+				local tween = createTween(0.3)
+				tween:Play()
+			end)
+
+			button.MouseLeave:Connect(function()
+				local tween = createTween(1)
+				tween:Play()
+			end)
 		else
-		    warn("DestroyButtonFrame not found")
+			warn("DestroyButtonFrame not found")
 		end
-		
+
 		function destroyGui()
 			local player = game.Players.LocalPlayer
 			if player then
 				local gui = player:FindFirstChild("PlayerGui")
-				:WaitForChild("BolboHub")
+					:WaitForChild("BolboHub")
 				if gui then
 					gui:Destroy()
 				end
 			end
 		end
-		
+
 		button.MouseButton1Click:Connect(destroyGui)
 	end;
 	task.spawn(C_6);
 	-- StarterGui.BolboHub.Window.MinimalizeButton.ButtonTransparencyTween
 	local function C_a()
-	local script = G2L["a"];
+		local script = G2L["a"];
 		local TweenService = game:GetService("TweenService")
 		local button = script.Parent
 		local frame = button.Parent:FindFirstChild("MinimalizeButtonFrame")
-		
+
 		if frame then
-		    local function createTween(targetTransparency)
-		        local tweenInfo = TweenInfo.new(
-		            0.3, -- Time
-		            Enum.EasingStyle.Linear, -- EasingStyle
-		            Enum.EasingDirection.Out, -- EasingDirection
-		            0, -- RepeatCount (0 = no repeat)
-		            false, -- Reverses (no reverse)
-		            0 -- DelayTime
-		        )
-		        local tween = TweenService:Create(frame, tweenInfo, {BackgroundTransparency = targetTransparency})
-		        return tween
-		    end
-		
-		    button.MouseEnter:Connect(function()
-		        local tween = createTween(0.3)
-		        tween:Play()
-		    end)
-		
-		    button.MouseLeave:Connect(function()
-		        local tween = createTween(1)
-		        tween:Play()
-		    end)
+			local function createTween(targetTransparency)
+				local tweenInfo = TweenInfo.new(
+					0.3, -- Time
+					Enum.EasingStyle.Linear, -- EasingStyle
+					Enum.EasingDirection.Out, -- EasingDirection
+					0, -- RepeatCount (0 = no repeat)
+					false, -- Reverses (no reverse)
+					0 -- DelayTime
+				)
+				local tween = TweenService:Create(frame, tweenInfo, {BackgroundTransparency = targetTransparency})
+				return tween
+			end
+
+			button.MouseEnter:Connect(function()
+				local tween = createTween(0.3)
+				tween:Play()
+			end)
+
+			button.MouseLeave:Connect(function()
+				local tween = createTween(1)
+				tween:Play()
+			end)
 		else
-		    warn("DestroyButtonFrame not found")
+			warn("DestroyButtonFrame not found")
 		end
-		
+
 		function HideGui()
 			local player = game.Players.LocalPlayer
 			if player then
 				local gui = player:FindFirstChild("PlayerGui")
-				:FindFirstChild("BolboHub")
-				:FindFirstChild("Window")
+					:FindFirstChild("BolboHub")
+					:FindFirstChild("Window")
 				if gui then
 					gui.Visible = false
 				end
 			end
 		end
-		
+
 		function ShowBolboImage()
 			local player = game.Players.LocalPlayer
 			if player then
@@ -290,71 +290,33 @@ local function createBaseGui()
 				end
 			end
 		end
-		
+
 		button.MouseButton1Click:Connect(HideGui)
 		button.MouseButton1Click:Connect(ShowBolboImage)
 	end;
 	task.spawn(C_a);
 	-- StarterGui.BolboHub.Window.DragWindowScript
 	local function C_f()
-	local script = G2L["f"];
+		local script = G2L["f"];
 		local UserInputService = game:GetService("UserInputService")
 		local gui = script.Parent
 		local dragButton = gui:WaitForChild("DragWindow") -- Assuming there's a button named DragWindow
-		
+
 		local dragging = false
 		local dragStart
 		local startPos
-		
-		local function update(input)
-		    local delta = input.Position - dragStart
-		    gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-		end
-		
-		dragButton.InputBegan:Connect(function(input)
-		    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		        dragging = true
-		        dragStart = input.Position
-		        startPos = gui.Position
-		
-		        input.Changed:Connect(function()
-		            if input.UserInputState == Enum.UserInputState.End then
-		                dragging = false
-		            end
-		        end)
-		    end
-		end)
-		
-		UserInputService.InputChanged:Connect(function(input)
-		    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-		        update(input)
-		    end
-		end)
-		
-		
-	end;
-	task.spawn(C_f);
-	-- StarterGui.BolboHub.BolboHubImage.LocalScript
-	local function C_14()
-	local script = G2L["14"];
-		local UserInputService = game:GetService("UserInputService")
-		local imageButton = script.Parent
-		
-		local dragging = false
-		local dragStart
-		local startPos
-		
+
 		local function update(input)
 			local delta = input.Position - dragStart
-			imageButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+			gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 		end
-		
-		imageButton.InputBegan:Connect(function(input)
+
+		dragButton.InputBegan:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
 				dragging = true
 				dragStart = input.Position
-				startPos = imageButton.Position
-		
+				startPos = gui.Position
+
 				input.Changed:Connect(function()
 					if input.UserInputState == Enum.UserInputState.End then
 						dragging = false
@@ -362,25 +324,63 @@ local function createBaseGui()
 				end)
 			end
 		end)
-		
+
 		UserInputService.InputChanged:Connect(function(input)
 			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 				update(input)
 			end
 		end)
-		
+
+
+	end;
+	task.spawn(C_f);
+	-- StarterGui.BolboHub.BolboHubImage.LocalScript
+	local function C_14()
+		local script = G2L["14"];
+		local UserInputService = game:GetService("UserInputService")
+		local imageButton = script.Parent
+
+		local dragging = false
+		local dragStart
+		local startPos
+
+		local function update(input)
+			local delta = input.Position - dragStart
+			imageButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		end
+
+		imageButton.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = true
+				dragStart = input.Position
+				startPos = imageButton.Position
+
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then
+						dragging = false
+					end
+				end)
+			end
+		end)
+
+		UserInputService.InputChanged:Connect(function(input)
+			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+				update(input)
+			end
+		end)
+
 		function showGui()
 			local player = game.Players.LocalPlayer
 			if player then
 				local gui = player:FindFirstChild("PlayerGui")
-				:FindFirstChild("BolboHub")
-				:FindFirstChild("Window")
+					:FindFirstChild("BolboHub")
+					:FindFirstChild("Window")
 				if gui then
 					gui.Visible = true
 				end
 			end
 		end
-		
+
 		function HideBolboImage()
 			local player = game.Players.LocalPlayer
 			if player then
@@ -392,7 +392,7 @@ local function createBaseGui()
 				end
 			end
 		end
-		
+
 		imageButton.MouseButton1Click:Connect(HideBolboImage)
 		imageButton.MouseButton1Click:Connect(showGui)
 	end;
