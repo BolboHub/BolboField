@@ -1,282 +1,183 @@
 local BolboField = {}
 local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
-
--- Constants
-local BLUE_THEME = Color3.fromRGB(30, 144, 255)
-local BACKGROUND_COLOR = Color3.fromRGB(25, 25, 25)
-local SELECTED_TAB_COLOR = Color3.fromRGB(40, 144, 255)
-local TEXT_COLOR = Color3.fromRGB(255, 255, 255)
-local HOVER_COLOR = Color3.fromRGB(45, 150, 255)
-
-local InterfaceManager = {
-    Library = {}
-}
-
--- Utility Functions
-local function CreateTween(object, properties, duration)
-    local tweenInfo = TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-    local tween = TweenService:Create(object, tweenInfo, properties)
-    return tween
-end
 
 function BolboField:CreateWindow(config)
-    local Window = {}
-    InterfaceManager.Library = Window
+    -- Validate configuration
+    assert(type(config) == "string" or type(config.Name) == "string", "Name must be a string")
     
-    -- Create main GUI
-    local ScreenGui = Instance.new("ScreenGui")
-    local MainFrame = Instance.new("Frame")
-    local TopBar = Instance.new("Frame")
-    local Title = Instance.new("TextLabel")
-    local CloseButton = Instance.new("TextButton")
-    local TabsFrame = Instance.new("Frame")
-    local ContentFrame = Instance.new("Frame")
-    local UICorner = Instance.new("UICorner")
+    local name = type(config) == "string" and config or config.Name
     
-    -- Setup GUI properties
-    ScreenGui.Name = "BolboField"
-    ScreenGui.Parent = game.CoreGui
-    ScreenGui.ResetOnSpawn = false
+    -- Create base GUI structure
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "BolboHub"
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
     
-    MainFrame.Name = "MainFrame"
-    MainFrame.Parent = ScreenGui
-    MainFrame.BackgroundColor3 = BACKGROUND_COLOR
-    MainFrame.Position = UDim2.new(0.2, 0, 0.2, 0)
-    MainFrame.Size = UDim2.new(0, 600, 0, 400)
-    MainFrame.ClipsDescendants = true
+    -- Create main window
+    local window = Instance.new("Frame")
+    window.Name = "Window"
+    window.BorderSizePixel = 0
+    window.BackgroundColor3 = Color3.fromRGB(43, 43, 43)
+    window.Size = UDim2.new(0, 654, 0, 394)
+    window.Position = UDim2.new(0.25614, 0, 0.25498, 0)
+    window.BackgroundTransparency = 0.3
+    window.Parent = gui
     
-    UICorner.Parent = MainFrame
-    UICorner.CornerRadius = UDim.new(0, 6)
+    -- Add UIStroke to window
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(117, 117, 117)
+    stroke.Parent = window
     
-    -- Top bar with close button
-    TopBar.Name = "TopBar"
-    TopBar.Parent = MainFrame
-    TopBar.BackgroundColor3 = BACKGROUND_COLOR
-    TopBar.Size = UDim2.new(1, 0, 0, 30)
+    -- Add separator line
+    local separator = Instance.new("Frame")
+    separator.BorderSizePixel = 0
+    separator.BackgroundColor3 = Color3.fromRGB(117, 117, 117)
+    separator.Size = UDim2.new(0, 654, 0, 1)
+    separator.Position = UDim2.new(0, 0, 0.11675, 0)
+    separator.Parent = window
     
-    Title.Name = "Title"
-    Title.Parent = TopBar
-    Title.BackgroundTransparency = 1
-    Title.Position = UDim2.new(0, 10, 0, 0)
-    Title.Size = UDim2.new(1, -40, 1, 0)
-    Title.Font = Enum.Font.FredokaOne
-    Title.Text = config.Name or "🔥 Bolbo Hub"
-    Title.TextColor3 = TEXT_COLOR
-    Title.TextSize = 18
-    Title.TextXAlignment = Enum.TextXAlignment.Left
+    -- Create destroy button
+    local destroyBtn = Instance.new("TextButton")
+    destroyBtn.Name = "DestroyButton"
+    destroyBtn.BorderSizePixel = 0
+    destroyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    destroyBtn.TextSize = 21
+    destroyBtn.BackgroundTransparency = 1
+    destroyBtn.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+    destroyBtn.ZIndex = 3
+    destroyBtn.Size = UDim2.new(0, 53, 0, 46)
+    destroyBtn.Text = "X"
+    destroyBtn.Position = UDim2.new(0.91896, 0, 0, 0)
+    destroyBtn.Parent = window
     
-    CloseButton.Name = "CloseButton"
-    CloseButton.Parent = TopBar
-    CloseButton.BackgroundTransparency = 1
-    CloseButton.Position = UDim2.new(1, -30, 0, 0)
-    CloseButton.Size = UDim2.new(0, 30, 1, 0)
-    CloseButton.Font = Enum.Font.FredokaOne
-    CloseButton.Text = "X"
-    CloseButton.TextColor3 = TEXT_COLOR
-    CloseButton.TextSize = 18
+    -- Create destroy button frame
+    local destroyBtnFrame = Instance.new("Frame")
+    destroyBtnFrame.Name = "DestroyButtonFrame"
+    destroyBtnFrame.BorderSizePixel = 0
+    destroyBtnFrame.BackgroundColor3 = Color3.fromRGB(43, 43, 43)
+    destroyBtnFrame.Size = UDim2.new(0, 40, 0, 40)
+    destroyBtnFrame.Position = UDim2.new(0.92813, 0, 0.00761, 0)
+    destroyBtnFrame.BackgroundTransparency = 1
+    destroyBtnFrame.Parent = window
     
-    CloseButton.MouseButton1Click:Connect(function()
-        ScreenGui:Destroy()
-    end)
+    -- Add UICorner to destroy button frame
+    local destroyCorner = Instance.new("UICorner")
+    destroyCorner.Parent = destroyBtnFrame
     
-    -- Setup containers
-    TabsFrame.Name = "TabsFrame"
-    TabsFrame.Parent = MainFrame
-    TabsFrame.BackgroundColor3 = BLUE_THEME
-    TabsFrame.BackgroundTransparency = 0.9
-    TabsFrame.Position = UDim2.new(0, 0, 0, 30)
-    TabsFrame.Size = UDim2.new(0, 150, 1, -30)
+    -- Create minimize button
+    local minBtn = Instance.new("TextButton")
+    minBtn.Name = "MinimalizeButton"
+    minBtn.BorderSizePixel = 0
+    minBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    minBtn.TextSize = 55
+    minBtn.BackgroundTransparency = 1
+    minBtn.FontFace = Font.new("rbxasset://fonts/families/Zekton.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+    minBtn.ZIndex = 3
+    minBtn.Size = UDim2.new(0, 41, 0, 45)
+    minBtn.Text = "-"
+    minBtn.Position = UDim2.new(0.85627, 0, 0, 0)
+    minBtn.Parent = window
     
-    local TabsUICorner = Instance.new("UICorner")
-    TabsUICorner.Parent = TabsFrame
-    TabsUICorner.CornerRadius = UDim.new(0, 6)
+    -- Create minimize button frame
+    local minBtnFrame = Instance.new("Frame")
+    minBtnFrame.Name = "MinimalizeButtonFrame"
+    minBtnFrame.BorderSizePixel = 0
+    minBtnFrame.BackgroundColor3 = Color3.fromRGB(43, 43, 43)
+    minBtnFrame.Size = UDim2.new(0, 40, 0, 40)
+    minBtnFrame.Position = UDim2.new(0.854, 1, 0.008, 0)
+    minBtnFrame.BackgroundTransparency = 1
+    minBtnFrame.Parent = window
     
-    ContentFrame.Name = "ContentFrame"
-    ContentFrame.Parent = MainFrame
-    ContentFrame.BackgroundTransparency = 1
-    ContentFrame.Position = UDim2.new(0, 160, 0, 40)
-    ContentFrame.Size = UDim2.new(1, -170, 1, -50)
+    -- Add UICorner to minimize button frame
+    local minCorner = Instance.new("UICorner")
+    minCorner.Parent = minBtnFrame
     
-    -- Make window draggable
-    local dragging
-    local dragInput
-    local dragStart
-    local startPos
+    -- Add UICorner to main window
+    local windowCorner = Instance.new("UICorner")
+    windowCorner.Parent = window
     
-    TopBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = MainFrame.Position
+    -- Create window label
+    local windowLabel = Instance.new("TextLabel")
+    windowLabel.Name = "WindowLabel"
+    windowLabel.BorderSizePixel = 0
+    windowLabel.TextSize = 16
+    windowLabel.TextXAlignment = Enum.TextXAlignment.Left
+    windowLabel.BackgroundTransparency = 1
+    windowLabel.FontFace = Font.new("rbxasset://fonts/families/Ubuntu.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+    windowLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    windowLabel.Size = UDim2.new(0, 188, 0, 45)
+    windowLabel.Text = name
+    windowLabel.Position = UDim2.new(0.01835, 0, 0, 0)
+    windowLabel.Parent = window
+    
+    -- Create BolboHub image
+    local image = Instance.new("ImageButton")
+    image.Name = "BolboHubImage"
+    image.BorderSizePixel = 0
+    image.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    image.Image = "rbxassetid://77521577858152"
+    image.Size = UDim2.new(0, 67, 0, 67)
+    image.Visible = false
+    image.Position = UDim2.new(0.47506, 0, 0.12562, 0)
+    image.Parent = gui
+    
+    -- Add UICorner to image
+    local imageCorner = Instance.new("UICorner")
+    imageCorner.Parent = image
+    
+    -- Add UIStroke to image
+    local imageStroke = Instance.new("UIStroke")
+    imageStroke.Color = Color3.fromRGB(117, 117, 117)
+    imageStroke.Parent = image
+    
+    -- Button functionality
+    local function setupButtonTween(button, frame)
+        local function createTween(targetTransparency)
+            local tweenInfo = TweenInfo.new(
+                0.3,
+                Enum.EasingStyle.Linear,
+                Enum.EasingDirection.Out,
+                0,
+                false,
+                0
+            )
+            return TweenService:Create(frame, tweenInfo, {BackgroundTransparency = targetTransparency})
         end
-    end)
-    
-    TopBar.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-    
-    game:GetService("RunService").RenderStepped:Connect(function()
-        if dragging then
-            local delta = dragInput.Position - dragStart
-            MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-    
-    -- Tab management
-    local Tabs = {}
-    local SelectedTab = nil
-    
-    function Window:CreateTab(name)
-        local Tab = {}
         
-        local TabButton = Instance.new("TextButton")
-        local TabContent = Instance.new("ScrollingFrame")
-        local TabButtonUICorner = Instance.new("UICorner")
-        
-        TabButton.Name = name
-        TabButton.Parent = TabsFrame
-        TabButton.BackgroundColor3 = BLUE_THEME
-        TabButton.BackgroundTransparency = 0.9
-        TabButton.Size = UDim2.new(1, -10, 0, 35)
-        TabButton.Position = UDim2.new(0, 5, 0, #Tabs * 40 + 5)
-        TabButton.Font = Enum.Font.FredokaOne
-        TabButton.Text = name
-        TabButton.TextColor3 = TEXT_COLOR
-        TabButton.TextSize = 16
-        TabButton.AutoButtonColor = false
-        
-        TabButtonUICorner.Parent = TabButton
-        TabButtonUICorner.CornerRadius = UDim.new(0, 6)
-        
-        TabContent.Name = name .. "Content"
-        TabContent.Parent = ContentFrame
-        TabContent.BackgroundTransparency = 1
-        TabContent.Size = UDim2.new(1, 0, 1, 0)
-        TabContent.ScrollBarThickness = 2
-        TabContent.Visible = false
-        TabContent.AutomaticCanvasSize = Enum.AutomaticSize.Y
-        TabContent.CanvasSize = UDim2.new(0, 0, 0, 0)
-        
-        -- Tab selection handling
-        TabButton.MouseButton1Click:Connect(function()
-            if SelectedTab then
-                CreateTween(SelectedTab.Button, {BackgroundTransparency = 0.9}):Play()
-            end
-            SelectedTab = {Button = TabButton, Content = TabContent}
-            CreateTween(TabButton, {BackgroundTransparency = 0.7}):Play()
-            
-            for _, tab in pairs(Tabs) do
-                tab.Content.Visible = false
-            end
-            TabContent.Visible = true
+        button.MouseEnter:Connect(function()
+            createTween(0.3):Play()
         end)
         
-        -- Hover effect
-        TabButton.MouseEnter:Connect(function()
-            if TabButton ~= SelectedTab or not SelectedTab then
-                CreateTween(TabButton, {BackgroundTransparency = 0.8}):Play()
-            end
+        button.MouseLeave:Connect(function()
+            createTween(1):Play()
         end)
-        
-        TabButton.MouseLeave:Connect(function()
-            if TabButton ~= SelectedTab or not SelectedTab then
-                CreateTween(TabButton, {BackgroundTransparency = 0.9}):Play()
-            end
-        end)
-        
-        -- Add section creation
-        function Tab:CreateSection(sectionName)
-            local Section = Instance.new("Frame")
-            local SectionTitle = Instance.new("TextLabel")
-            local SectionContent = Instance.new("Frame")
-            local UIListLayout = Instance.new("UIListLayout")
-            
-            Section.Name = sectionName
-            Section.Parent = TabContent
-            Section.BackgroundTransparency = 1
-            Section.Size = UDim2.new(1, -20, 0, 0)
-            Section.AutomaticSize = Enum.AutomaticSize.Y
-            Section.Position = UDim2.new(0, 10, 0, 10)
-            
-            SectionTitle.Name = "Title"
-            SectionTitle.Parent = Section
-            SectionTitle.BackgroundTransparency = 1
-            SectionTitle.Size = UDim2.new(1, 0, 0, 25)
-            SectionTitle.Font = Enum.Font.FredokaOne
-            SectionTitle.Text = sectionName
-            SectionTitle.TextColor3 = TEXT_COLOR
-            SectionTitle.TextSize = 16
-            SectionTitle.TextXAlignment = Enum.TextXAlignment.Left
-            
-            SectionContent.Name = "Content"
-            SectionContent.Parent = Section
-            SectionContent.BackgroundTransparency = 1
-            SectionContent.Position = UDim2.new(0, 0, 0, 25)
-            SectionContent.Size = UDim2.new(1, 0, 0, 0)
-            SectionContent.AutomaticSize = Enum.AutomaticSize.Y
-            
-            UIListLayout.Parent = SectionContent
-            UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout.Padding = UDim.new(0, 5)
-            
-            return Section
-        end
-        
-        -- Add other element creation methods (Toggle, Button, etc.)
-        function Tab:CreateToggle(config)
-            local Toggle = Instance.new("Frame")
-            local ToggleButton = Instance.new("TextButton")
-            local ToggleIndicator = Instance.new("Frame")
-            local UICorner = Instance.new("UICorner")
-            
-            Toggle.Name = "Toggle"
-            Toggle.Parent = TabContent
-            Toggle.BackgroundColor3 = BLUE_THEME
-            Toggle.BackgroundTransparency = 0.9
-            Toggle.Size = UDim2.new(1, -20, 0, 35)
-            Toggle.Position = UDim2.new(0, 10, 0, 0)
-            
-            UICorner.Parent = Toggle
-            UICorner.CornerRadius = UDim.new(0, 6)
-            
-            ToggleButton.Name = "Button"
-            ToggleButton.Parent = Toggle
-            ToggleButton.BackgroundTransparency = 1
-            ToggleButton.Size = UDim2.new(1, 0, 1, 0)
-            ToggleButton.Font = Enum.Font.FredokaOne
-            ToggleButton.Text = config.Name
-            ToggleButton.TextColor3 = TEXT_COLOR
-            ToggleButton.TextSize = 14
-            
-            local isToggled = config.CurrentValue or false
-            
-            -- Add your toggle functionality here
-            
-            return Toggle
-        end
-        
-        -- Add tab to tabs table
-        table.insert(Tabs, {Button = TabButton, Content = TabContent})
-        
-        -- Select first tab by default
-        if #Tabs == 1 then
-            TabButton.MouseButton1Click:Fire()
-        end
-        
-        return Tab
     end
     
-    return Window
+    setupButtonTween(destroyBtn, destroyBtnFrame)
+    setupButtonTween(minBtn, minBtnFrame)
+    
+    -- Destroy button functionality
+    destroyBtn.MouseButton1Click:Connect(function()
+        gui:Destroy()
+    end)
+    
+    -- Minimize button functionality
+    minBtn.MouseButton1Click:Connect(function()
+        window.Visible = false
+        image.Visible = true
+    end)
+    
+    -- Image button functionality
+    image.MouseButton1Click:Connect(function()
+        window.Visible = true
+        image.Visible = false
+    end)
+    
+    -- Return window object
+    return {
+        Window = window,
+        GUI = gui
+    }
 end
 
 return BolboField
