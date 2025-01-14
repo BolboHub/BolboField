@@ -423,4 +423,52 @@ function BolboField:CreateWindow(config)
 	return gui["2"]
 end
 
+local TweenService = game:GetService("TweenService")
+
+local function animateTransparency(instance, targetTransparency, duration)
+    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    TweenService:Create(instance, tweenInfo, {BackgroundTransparency = targetTransparency}):Play()
+end
+
+function BolboField:CreateTab(name)
+    local categoryButton = Instance.new("TextButton")
+    categoryButton.Name = name .. "Button"
+    categoryButton.Text = name
+    categoryButton.Size = UDim2.new(0, 167, 0, 41)
+    categoryButton.Position = UDim2.new(0.018, 0, 0.147, 0)
+    categoryButton.BackgroundTransparency = 1
+    categoryButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    categoryButton.Parent = self.CategoryButtons -- Assuming CategoryButtonsFrame holds all buttons
+
+    local categoryFrame = Instance.new("Frame")
+    categoryFrame.Name = name .. "Frame"
+    categoryFrame.Size = UDim2.new(0, 463, 0, 347)
+    categoryFrame.Position = UDim2.new(0.292, 0, 0.119, 0)
+    categoryFrame.BackgroundTransparency = 1
+    categoryFrame.Parent = self.Categories -- Assuming CategoriesFrame holds all frames
+
+    categoryButton.MouseButton1Click:Connect(function()
+        -- Reset all buttons and frames
+        for _, button in pairs(self.CategoryButtonsFrame:GetChildren()) do
+            if button:IsA("TextButton") then
+                animateTransparency(button, 1, 0.3)
+                animateTransparency(button:FindFirstChild("Frame"), 1, 0.3)
+            end
+        end
+        for _, frame in pairs(self.CategoriesFrame:GetChildren()) do
+            if frame:IsA("Frame") then
+                animateTransparency(frame, 1, 0.3)
+            end
+        end
+
+        -- Activate current button and frame
+        animateTransparency(categoryButton, 0.6, 0.3)
+        animateTransparency(categoryButton:FindFirstChild("Frame"), 0, 0.3)
+        animateTransparency(categoryFrame, 0, 0.3)
+    end)
+
+    return categoryButton
+end
+
+
 return BolboField
