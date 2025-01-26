@@ -1,198 +1,149 @@
--- BolboField UI Library
 local BolboField = {}
+BolboField.__index = BolboField
 
-local function deepCloneTable(original)
-    local copy = {}
-    for k, v in pairs(original) do
-        if type(v) == "table" then
-            copy[k] = deepCloneTable(v)
-        else
-            copy[k] = v
-        end
-    end
-    return copy
-end
-
-local function createBaseGui()
+function BolboField:CreateWindow(text)
+    -- Create the main ScreenGui
     local G2L = {}
-
-    -- Create ScreenGui
     G2L["1"] = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"))
     G2L["1"]["Name"] = "BolboHub"
     G2L["1"]["ZIndexBehavior"] = Enum.ZIndexBehavior.Sibling
 
-    -- Create main window frame
+    -- Window Frame
     G2L["2"] = Instance.new("Frame", G2L["1"])
     G2L["2"]["BorderSizePixel"] = 0
     G2L["2"]["BackgroundColor3"] = Color3.fromRGB(43, 43, 43)
+    G2L["2"]["ClipsDescendants"] = true
     G2L["2"]["Size"] = UDim2.new(0, 654, 0, 394)
     G2L["2"]["Position"] = UDim2.new(0.25614, 0, 0.25498, 0)
     G2L["2"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
     G2L["2"]["Name"] = "Window"
     G2L["2"]["BackgroundTransparency"] = 0.3
 
-    -- Create UI elements
+    -- Window Stroke
     G2L["3"] = Instance.new("UIStroke", G2L["2"])
     G2L["3"]["Color"] = Color3.fromRGB(117, 117, 117)
 
-    G2L["4"] = Instance.new("Frame", G2L["2"])
-    G2L["4"]["BorderSizePixel"] = 0
-    G2L["4"]["BackgroundColor3"] = Color3.fromRGB(117, 117, 117)
-    G2L["4"]["Size"] = UDim2.new(0, 654, 0, 1)
-    G2L["4"]["Position"] = UDim2.new(0, 0, 0.11675, 0)
-    G2L["4"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-
-    -- Create destroy button
-    G2L["5"] = Instance.new("TextButton", G2L["2"])
-    G2L["5"]["BorderSizePixel"] = 0
-    G2L["5"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-    G2L["5"]["TextSize"] = 21
-    G2L["5"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-    G2L["5"]["FontFace"] = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-    G2L["5"]["ZIndex"] = 3
-    G2L["5"]["Size"] = UDim2.new(0, 53, 0, 46)
-    G2L["5"]["Name"] = "DestroyButton"
-    G2L["5"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-    G2L["5"]["Text"] = "X"
-    G2L["5"]["Position"] = UDim2.new(0.91896, 0, 0, 0)
-    G2L["5"]["BackgroundTransparency"] = 1
-
-    -- Create destroy button frame
-    G2L["7"] = Instance.new("Frame", G2L["2"])
-    G2L["7"]["BorderSizePixel"] = 0
-    G2L["7"]["BackgroundColor3"] = Color3.fromRGB(43, 43, 43)
-    G2L["7"]["Size"] = UDim2.new(0, 40, 0, 40)
-    G2L["7"]["Position"] = UDim2.new(0.92813, 0, 0.00761, 0)
-    G2L["7"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-    G2L["7"]["Name"] = "DestroyButtonFrame"
-    G2L["7"]["BackgroundTransparency"] = 1
-
-    G2L["8"] = Instance.new("UICorner", G2L["7"])
-
-    -- Create minimize button
-    G2L["9"] = Instance.new("TextButton", G2L["2"])
-    G2L["9"]["BorderSizePixel"] = 0
-    G2L["9"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
-    G2L["9"]["TextSize"] = 55
-    G2L["9"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-    G2L["9"]["FontFace"] = Font.new("rbxasset://fonts/families/Zekton.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-    G2L["9"]["ZIndex"] = 3
-    G2L["9"]["Size"] = UDim2.new(0, 41, 0, 45)
-    G2L["9"]["Name"] = "MinimalizeButton"
-    G2L["9"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-    G2L["9"]["Text"] = "-"
-    G2L["9"]["Position"] = UDim2.new(0.85627, 0, 0, 0)
-    G2L["9"]["BackgroundTransparency"] = 1
-
-    -- Create minimize button frame
-    G2L["b"] = Instance.new("Frame", G2L["2"])
-    G2L["b"]["BorderSizePixel"] = 0
-    G2L["b"]["BackgroundColor3"] = Color3.fromRGB(43, 43, 43)
-    G2L["b"]["Size"] = UDim2.new(0, 40, 0, 40)
-    G2L["b"]["Position"] = UDim2.new(0.854, 1, 0.008, 0)
-    G2L["b"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-    G2L["b"]["Name"] = "MinimalizeButtonFrame"
-    G2L["b"]["BackgroundTransparency"] = 1
-
-    G2L["c"] = Instance.new("UICorner", G2L["b"])
-    G2L["d"] = Instance.new("UICorner", G2L["2"])
-
-    -- Create window label
+    -- Window Label
     G2L["e"] = Instance.new("TextLabel", G2L["2"])
     G2L["e"]["BorderSizePixel"] = 0
-    G2L["e"]["TextSize"] = 16
+    G2L["e"]["TextSize"] = 23
     G2L["e"]["TextXAlignment"] = Enum.TextXAlignment.Left
     G2L["e"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-    G2L["e"]["FontFace"] = Font.new("rbxasset://fonts/families/Ubuntu.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal)
+    G2L["e"]["FontFace"] = Font.new([[rbxasset://fonts/families/SourceSansPro.json]], Enum.FontWeight.Bold, Enum.FontStyle.Normal)
     G2L["e"]["TextColor3"] = Color3.fromRGB(255, 255, 255)
+    G2L["e"]["BackgroundTransparency"] = 1
     G2L["e"]["Size"] = UDim2.new(0, 188, 0, 45)
     G2L["e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-    G2L["e"]["Text"] = "Window"
+    G2L["e"]["Text"] = text
     G2L["e"]["Name"] = "WindowLabel"
-    G2L["e"]["BackgroundTransparency"] = 1
     G2L["e"]["Position"] = UDim2.new(0.01835, 0, 0, 0)
 
-    -- Create BolboHub image
-    G2L["f"] = Instance.new("ImageButton", G2L["1"])
-    G2L["f"]["BorderSizePixel"] = 0
-    G2L["f"]["BackgroundColor3"] = Color3.fromRGB(255, 255, 255)
-    G2L["f"]["Image"] = "rbxassetid://77521577858152"
-    G2L["f"]["Size"] = UDim2.new(0, 67, 0, 67)
-    G2L["f"]["Name"] = "BolboHubImage"
-    G2L["f"]["BorderColor3"] = Color3.fromRGB(0, 0, 0)
-    G2L["f"]["Position"] = UDim2.new(0.47506, 0, 0.12562, 0)
-    G2L["f"]["Visible"] = false
+    -- Destroy Button
+    local destroyButton = self:CreateDestroyButton(G2L["2"])
+    
+    -- Minimalize Button
+    local minimalizeButton = self:CreateMinimalizeButton(G2L["2"])
+    
+    -- Drag Window Functionality
+    self:AddDragFunctionality(G2L["2"])
 
-    G2L["10"] = Instance.new("UICorner", G2L["f"])
-    G2L["11"] = Instance.new("UIStroke", G2L["f"])
-    G2L["11"]["Color"] = Color3.fromRGB(117, 117, 117)
-
-    -- Setup button functionality
-    local TweenService = game:GetService("TweenService")
-
-    -- Destroy button functionality
-    local function setupDestroyButton()
-        local function createTween(frame, targetTransparency)
-            local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0)
-            return TweenService:Create(frame, tweenInfo, {BackgroundTransparency = targetTransparency})
-        end
-
-        G2L["5"].MouseEnter:Connect(function()
-            createTween(G2L["7"], 0.3):Play()
-        end)
-
-        G2L["5"].MouseLeave:Connect(function()
-            createTween(G2L["7"], 1):Play()
-        end)
-
-        G2L["5"].MouseButton1Click:Connect(function()
-            G2L["1"]:Destroy()
-        end)
-    end
-
-    -- Minimize button functionality
-    local function setupMinimizeButton()
-        local function createTween(frame, targetTransparency)
-            local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false, 0)
-            return TweenService:Create(frame, tweenInfo, {BackgroundTransparency = targetTransparency})
-        end
-
-        G2L["9"].MouseEnter:Connect(function()
-            createTween(G2L["b"], 0.3):Play()
-        end)
-
-        G2L["9"].MouseLeave:Connect(function()
-            createTween(G2L["b"], 1):Play()
-        end)
-
-        G2L["9"].MouseButton1Click:Connect(function()
-            G2L["2"].Visible = false
-            G2L["f"].Visible = true
-        end)
-    end
-
-    -- BolboHub image functionality
-    G2L["f"].MouseButton1Click:Connect(function()
-        G2L["f"].Visible = false
-        G2L["2"].Visible = true
-    end)
-
-    setupDestroyButton()
-    setupMinimizeButton()
-
-    return G2L
+    -- Return the window and the internal table for further customization
+    return {
+        Window = G2L["2"],
+        ScreenGui = G2L["1"],
+        InternalTable = G2L
+    }
 end
 
-function BolboField:CreateWindow(config)
-    local gui = createBaseGui()
-    
-    -- Update window label with provided name
-    if config and config.Name then
-        gui["e"].Text = config.Name
+function BolboField:CreateDestroyButton(parentFrame)
+    local destroyButton = Instance.new("TextButton", parentFrame)
+    destroyButton.BorderSizePixel = 0
+    destroyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    destroyButton.TextSize = 21
+    destroyButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    destroyButton.FontFace = Font.new([[rbxasset://fonts/families/FredokaOne.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+    destroyButton.ZIndex = 3
+    destroyButton.Size = UDim2.new(0, 53, 0, 46)
+    destroyButton.BackgroundTransparency = 1
+    destroyButton.Name = "DestroyButton"
+    destroyButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    destroyButton.Text = "X"
+    destroyButton.Position = UDim2.new(0.91896, 0, 0, 0)
+
+    -- Destroy functionality
+    destroyButton.MouseButton1Click:Connect(function()
+        local player = game.Players.LocalPlayer
+        local gui = player.PlayerGui:FindFirstChild("BolboHub")
+        if gui then
+            gui:Destroy()
+        end
+    end)
+
+    return destroyButton
+end
+
+function BolboField:CreateMinimalizeButton(parentFrame)
+    local minimalizeButton = Instance.new("TextButton", parentFrame)
+    minimalizeButton.BorderSizePixel = 0
+    minimalizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    minimalizeButton.TextSize = 55
+    minimalizeButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    minimalizeButton.FontFace = Font.new([[rbxasset://fonts/families/Zekton.json]], Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+    minimalizeButton.ZIndex = 3
+    minimalizeButton.Size = UDim2.new(0, 41, 0, 45)
+    minimalizeButton.BackgroundTransparency = 1
+    minimalizeButton.Name = "MinimalizeButton"
+    minimalizeButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    minimalizeButton.Text = "-"
+    minimalizeButton.Position = UDim2.new(0.85627, 0, 0, 0)
+
+    -- Minimalize functionality
+    minimalizeButton.MouseButton1Click:Connect(function()
+        local player = game.Players.LocalPlayer
+        local window = player.PlayerGui:FindFirstChild("BolboHub"):FindFirstChild("Window")
+        if window then
+            window.Visible = false
+        end
+    end)
+
+    return minimalizeButton
+end
+
+function BolboField:AddDragFunctionality(frame)
+    local UserInputService = game:GetService("UserInputService")
+    local dragging = false
+    local dragStart
+    local startPos
+
+    local dragFrame = Instance.new("Frame", frame)
+    dragFrame.Name = "DragWindow"
+    dragFrame.BackgroundTransparency = 1
+    dragFrame.Size = UDim2.new(0, 654, 0, 45)
+
+    local function update(input)
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
-    
-    -- Return the window frame for further modifications
-    return gui["2"]
+
+    dragFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            update(input)
+        end
+    end)
 end
 
 return BolboField
