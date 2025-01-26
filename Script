@@ -127,7 +127,7 @@ G2L["e"]["TextColor3"] = Color3.fromRGB(255, 255, 255);
 G2L["e"]["BackgroundTransparency"] = 1;
 G2L["e"]["Size"] = UDim2.new(0, 188, 0, 45);
 G2L["e"]["BorderColor3"] = Color3.fromRGB(0, 0, 0);
-G2L["e"]["Text"] = [[Bolbo Hub | Fisch]];
+G2L["e"]["Text"] = text
 G2L["e"]["Name"] = [[WindowLabel]];
 G2L["e"]["Position"] = UDim2.new(0.01835, 0, 0, 0);
 
